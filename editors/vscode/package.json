@@ -1,0 +1,23 @@
+{
+  "name": "nepa-lang",
+  "displayName": "Nepa",
+  "description": "Nepa language support: file icon and syntax highlighting",
+  "publisher": "local",
+  "version": "0.0.2",
+  "engines": { "vscode": "^1.70.0" },
+  "categories": ["Programming Languages"],
+  "contributes": {
+    "languages": [{
+      "id": "nepa",
+      "aliases": ["Nepa", "nepa"],
+      "extensions": [".nepa"],
+      "icon": { "light": "./nepa-logo.png", "dark": "./nepa-logo.png" },
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "nepa",
+      "scopeName": "source.nepa",
+      "path": "./syntaxes/nepa.tmLanguage.json"
+    }]
+  }
+}

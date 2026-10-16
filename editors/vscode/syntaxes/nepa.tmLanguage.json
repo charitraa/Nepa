@@ -1,0 +1,49 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Nepa",
+  "scopeName": "source.nepa",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#string" },
+    { "include": "#number" },
+    { "include": "#keyword" },
+    { "include": "#builtin" },
+    { "include": "#function-call" },
+    { "include": "#operator" }
+  ],
+  "repository": {
+    "comment": {
+      "name": "comment.line.number-sign.nepa",
+      "match": "#.*$"
+    },
+    "string": {
+      "name": "string.quoted.double.nepa",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [{ "name": "constant.character.escape.nepa", "match": "\\\\." }]
+    },
+    "number": {
+      "name": "constant.numeric.nepa",
+      "match": "\\b[0-9]+(\\.[0-9]+)?\\b"
+    },
+    "keyword": {
+      "patterns": [
+        { "name": "keyword.control.nepa", "match": "\\b(yedi|natara|jabasamma|ko_lagi|farkau)\\b" },
+        { "name": "storage.type.function.nepa", "match": "\\b(kaam)\\b" },
+        { "name": "keyword.other.nepa", "match": "\\b(banau|class|interface|import)\\b" }
+      ]
+    },
+    "builtin": {
+      "name": "support.function.builtin.nepa",
+      "match": "\\b(vana)\\b"
+    },
+    "function-call": {
+      "name": "entity.name.function.nepa",
+      "match": "\\b[A-Za-z_][A-Za-z0-9_]*(?=\\s*\\()"
+    },
+    "operator": {
+      "name": "keyword.operator.nepa",
+      "match": "==|!=|<=|>=|[-+*/%=<>!]"
+    }
+  }
+}

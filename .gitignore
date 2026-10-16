@@ -1,0 +1,37 @@
+# Build output
+bin/
+*.o
+*.a
+*.so
+*.d
+*.dSYM/
+
+# Sanitizer / debugger / profiler artifacts
+core
+core.*
+vgcore.*
+*.gcda
+*.gcno
+*.gcov
+gmon.out
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.clangd/
+.cache/
+compile_commands.json
+
+# VS Code extension packaging
+editors/vscode/node_modules/
+editors/vscode/*.vsix
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local scratch
+test.nepa
