@@ -9,9 +9,11 @@ control-flow/keyword vocabulary with English technical terms (e.g. `vana` = prin
 `yedi`/`natara` = if/else, `kaam` = function, `farkau` = return). The compiler/interpreter
 is implemented in C (C11), built incrementally, milestone by milestone.
 
-**Current status: Milestone 1 (Calculator) is complete.** Only integer arithmetic through
-a hardcoded `vana(expr)` print statement works — `+ - * / %`, parentheses, and unary `+`/`-`.
-There are no variables, conditionals, loops, user-defined functions, arrays, or classes yet.
+**Current status: Milestone 2 (Variables) is complete.** A program is a sequence of
+newline-terminated statements: `vana(expr)` (print) and `name = expr` (assignment, which
+creates the variable on first use — no declaration keyword, per `docs/prompt.txt`). Values
+are integers only; `+ - * / %`, parentheses, unary `+`/`-`, and variable references.
+There are no strings, conditionals, loops, user-defined functions, arrays, or classes yet.
 
 ## Commands
 
@@ -31,12 +33,13 @@ Run a single test case manually (bypassing the harness):
 ```
 
 There is no test framework beyond `tests/run_tests.sh`, a plain bash script:
-- Any `tests/calculator/NAME.nepa` with a matching `tests/calculator/NAME.expected` is run
-  and its stdout diffed against the `.expected` file.
-- Any `tests/calculator/NAME.error.nepa` is expected to exit non-zero (syntax/runtime errors);
+- Every subdirectory of `tests/` is a suite (`calculator/`, `variables/`, ...).
+- Any `tests/SUITE/NAME.nepa` with a matching `NAME.expected` is run and its stdout diffed
+  against the `.expected` file.
+- Any `tests/SUITE/NAME.error.nepa` is expected to exit non-zero (syntax/runtime errors);
   there is no matching `.expected` file for these.
 - To add a test: drop a new `.nepa`/`.expected` pair (or `.error.nepa` for a failure case) into
-  `tests/calculator/` — no registration needed, the script globs the directory.
+  a suite directory; a new milestone gets a new directory — no registration needed.
 
 ## Architecture
 
@@ -50,15 +53,22 @@ source file → Lexer → Token stream → Parser (recursive descent) → AST �
   source buffer rather than copied strings, to avoid per-token allocation.
 - `src/lexer.c` — hand-written scanner, one token at a time via `lexer_next_token()`. Tracks
   line/col for diagnostics. `#` starts a line comment.
+  Newlines are significant: `\n` is emitted as `TOKEN_NEWLINE` (statement terminator), so an
+  expression cannot currently span lines. `vana` is lexed as the keyword `TOKEN_VANA`; new
+  keywords should be added the same way in `ident_token()`.
 - `src/parser.c` — recursive descent. Operator precedence is encoded by the *call chain*, not
   a precedence table: `parse_expr` (handles `+ -`) calls `parse_term` (handles `* / %`) calls
   `parse_factor` (numbers, parens, unary sign). When adding new operators, insert a new
   precedence level as a new function in this chain rather than adding a table.
 - `src/ast.h`/`ast.c` — tagged-union AST nodes (`AST_NUMBER`, `AST_BINOP`, `AST_UNARY`,
-  `AST_PRINT`). `ast_free` recursively frees a tree; every node allocated by `ast_new_*` must
+  `AST_VARIABLE`, `AST_ASSIGN`, `AST_PRINT`, and the root `AST_PROGRAM` holding a growable
+  statement array). Variable/assign nodes keep their name `Token` for error locations. `ast_free` recursively frees a tree; every node allocated by `ast_new_*` must
   eventually pass through it.
-- `src/interpreter.c` — tree-walking evaluator (`eval`), operates directly on the AST (no IR).
-  Division/modulo by zero are runtime errors that print a message and `exit(1)`.
+- `src/interpreter.c` — tree-walking evaluator: `execute` runs statements, `eval` evaluates
+  expressions, directly on the AST (no IR). Variables live in a flat, linearly-searched global
+  list (names are source slices) — deliberately simple; the hashed, scoped symbol table is its
+  own later milestone. Undefined variables are reported via `report_error` with a caret;
+  division/modulo by zero print a message and `exit(1)`.
 - `src/diagnostics.c` — single shared `report_error()` used by the parser (and meant to be
   reused by future phases) to print beginner-friendly errors: file/line/column, the offending
   source line, and a `^` caret under the exact column, per the project's error-message
@@ -67,7 +77,7 @@ source file → Lexer → Token stream → Parser (recursive descent) → AST �
 - `src/main.c` — wires the pipeline together: read file → init lexer → init parser → parse →
   bail out non-zero if `parser.had_error` → interpret → free.
 
-`vana(...)` is currently special-cased directly in the parser's `parser_parse_program()` (it is
+`vana(...)` is currently special-cased as a statement in the parser's `parse_statement()` (it is
 *not* a general function call) — general function calls arrive in the Functions milestone.
 
 ## Development approach for this project

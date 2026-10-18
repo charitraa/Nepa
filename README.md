@@ -3,36 +3,44 @@
 A compiled programming language for Nepali developers, mixing romanized Nepali
 control-flow words with English technical terms. Implemented in C.
 
-## Status: Milestone 1 — Calculator
+## Status: Milestone 2 — Variables
 
 Supported today:
 
 ```
-vana(10 + 20 * 3)
+x = 10
+y = 20
+
+vana(x + y)
 ```
 
 runs and prints:
 
 ```
-70
+30
 ```
 
-Operators: `+ - * / %`, parentheses, unary `+`/`-`. Nothing else yet —
-no variables, conditionals, loops, functions, or classes. Those are
-later milestones.
+- Integer arithmetic: `+ - * / %`, parentheses, unary `+`/`-`
+- Variables: `name = expr` creates a variable on first assignment and
+  updates it afterwards; using a variable before assigning it is an error
+- One statement per line; `#` starts a comment
+
+Nothing else yet — no strings, conditionals, loops, functions, or
+classes. Those are later milestones.
 
 ## Build
 
 ```bash
 make          # optimized-ish debug build
 make debug    # build with ASan/UBSan for development
-make test     # build and run tests/calculator
+make test     # build and run every suite under tests/
 ```
 
 ## Run
 
 ```bash
 ./bin/nepa examples/hello_calc.nepa
+./bin/nepa examples/variables.nepa
 ```
 
 ## Project layout

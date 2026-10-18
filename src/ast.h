@@ -1,11 +1,16 @@
 #ifndef NEPA_AST_H
 #define NEPA_AST_H
 
+#include "token.h"
+
 typedef enum {
     AST_NUMBER,
     AST_BINOP,
     AST_UNARY,
-    AST_PRINT
+    AST_VARIABLE,
+    AST_ASSIGN,
+    AST_PRINT,
+    AST_PROGRAM
 } AstType;
 
 typedef struct AstNode {
@@ -14,14 +19,21 @@ typedef struct AstNode {
         struct { long value; } number;
         struct { char op; struct AstNode *left; struct AstNode *right; } binop;
         struct { char op; struct AstNode *operand; } unary;
+        struct { Token name; } variable;
+        struct { Token name; struct AstNode *value; } assign;
         struct { struct AstNode *expr; } print;
+        struct { struct AstNode **statements; int count; int capacity; } program;
     } as;
 } AstNode;
 
 AstNode *ast_new_number(long value);
 AstNode *ast_new_binop(char op, AstNode *left, AstNode *right);
 AstNode *ast_new_unary(char op, AstNode *operand);
+AstNode *ast_new_variable(Token name);
+AstNode *ast_new_assign(Token name, AstNode *value);
 AstNode *ast_new_print(AstNode *expr);
+AstNode *ast_new_program(void);
+void ast_program_append(AstNode *program, AstNode *statement);
 void ast_free(AstNode *node);
 
 #endif

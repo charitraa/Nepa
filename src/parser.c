@@ -1,4 +1,3 @@
-#include <string.h>
 #include "parser.h"
 #include "diagnostics.h"
 
@@ -12,10 +11,14 @@ static int check(Parser *parser, TokenType type) {
     return parser->current.type == type;
 }
 
-static void error_at_current(Parser *parser, const char *message) {
+static void error_at(Parser *parser, Token token, const char *message) {
     if (parser->had_error) return;
     parser->had_error = 1;
-    report_error(parser->source, parser->filename, parser->current, message);
+    report_error(parser->source, parser->filename, token, message);
+}
+
+static void error_at_current(Parser *parser, const char *message) {
+    error_at(parser, parser->current, message);
 }
 
 static Token expect(Parser *parser, TokenType type, const char *message) {
@@ -37,6 +40,12 @@ static AstNode *parse_factor(Parser *parser) {
         return ast_new_number(value);
     }
 
+    if (check(parser, TOKEN_IDENT)) {
+        Token name = parser->current;
+        advance(parser);
+        return ast_new_variable(name);
+    }
+
     if (check(parser, TOKEN_MINUS) || check(parser, TOKEN_PLUS)) {
         char op = parser->current.start[0];
         advance(parser);
@@ -51,7 +60,7 @@ static AstNode *parse_factor(Parser *parser) {
         return inner;
     }
 
-    error_at_current(parser, "Expected a number, '(', or a sign here.");
+    error_at_current(parser, "Expected a number, a variable, '(', or a sign here.");
     return ast_new_number(0);
 }
 
@@ -82,9 +91,52 @@ static AstNode *parse_expr(Parser *parser) {
     return left;
 }
 
-static int ident_is(Token token, const char *text) {
-    size_t len = strlen(text);
-    return (size_t)token.length == len && strncmp(token.start, text, len) == 0;
+static AstNode *parse_print(Parser *parser) {
+    Token keyword = parser->current;
+    advance(parser);
+
+    if (check(parser, TOKEN_EQUAL)) {
+        error_at(parser, keyword, "'vana' is a reserved keyword and cannot be used as a variable name.");
+        return ast_new_print(ast_new_number(0));
+    }
+
+    expect(parser, TOKEN_LPAREN, "Expected '(' after 'vana'.");
+    AstNode *expr = parse_expr(parser);
+    expect(parser, TOKEN_RPAREN, "Expected ')' to close 'vana(...)'.");
+    return ast_new_print(expr);
+}
+
+static AstNode *parse_assignment(Parser *parser) {
+    Token name = parser->current;
+    advance(parser);
+
+    if (!check(parser, TOKEN_EQUAL)) {
+        error_at(parser, name,
+                 "Unknown statement. Use 'vana(...)' to print, or 'name = value' to assign a variable.");
+        return ast_new_assign(name, ast_new_number(0));
+    }
+    advance(parser);
+
+    AstNode *value = parse_expr(parser);
+    return ast_new_assign(name, value);
+}
+
+static AstNode *parse_statement(Parser *parser) {
+    if (check(parser, TOKEN_VANA)) {
+        return parse_print(parser);
+    }
+    if (check(parser, TOKEN_IDENT)) {
+        return parse_assignment(parser);
+    }
+
+    error_at_current(parser, "Expected a statement here, such as 'vana(...)' or 'name = value'.");
+    return ast_new_number(0);
+}
+
+static void skip_newlines(Parser *parser) {
+    while (check(parser, TOKEN_NEWLINE)) {
+        advance(parser);
+    }
 }
 
 void parser_init(Parser *parser, Lexer *lexer, const char *source, const char *filename) {
@@ -96,16 +148,17 @@ void parser_init(Parser *parser, Lexer *lexer, const char *source, const char *f
 }
 
 AstNode *parser_parse_program(Parser *parser) {
-    if (!check(parser, TOKEN_IDENT) || !ident_is(parser->current, "vana")) {
-        error_at_current(parser, "Expected 'vana' to start the program.");
-        return ast_new_print(ast_new_number(0));
+    AstNode *program = ast_new_program();
+
+    skip_newlines(parser);
+    while (!parser->had_error && !check(parser, TOKEN_EOF)) {
+        ast_program_append(program, parse_statement(parser));
+
+        if (!parser->had_error && !check(parser, TOKEN_NEWLINE) && !check(parser, TOKEN_EOF)) {
+            error_at_current(parser, "Unexpected extra input. Each statement must be on its own line.");
+        }
+        skip_newlines(parser);
     }
-    advance(parser);
 
-    expect(parser, TOKEN_LPAREN, "Expected '(' after 'vana'.");
-    AstNode *expr = parse_expr(parser);
-    expect(parser, TOKEN_RPAREN, "Expected ')' to close 'vana(...)'.");
-    expect(parser, TOKEN_EOF, "Unexpected extra input after 'vana(...)'.");
-
-    return ast_new_print(expr);
+    return program;
 }

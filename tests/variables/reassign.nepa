@@ -1,0 +1,6 @@
+x = 5
+vana(x)
+x = x + 1
+vana(x)
+x = x * x
+vana(x)

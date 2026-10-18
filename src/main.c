@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    interpret(program);
+    interpret(program, source, filename);
 
     ast_free(program);
     free(source);

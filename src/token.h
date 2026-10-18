@@ -10,7 +10,10 @@ typedef enum {
     TOKEN_PERCENT,
     TOKEN_LPAREN,
     TOKEN_RPAREN,
+    TOKEN_EQUAL,
+    TOKEN_NEWLINE,
     TOKEN_IDENT,
+    TOKEN_VANA,
     TOKEN_EOF,
     TOKEN_ERROR
 } TokenType;

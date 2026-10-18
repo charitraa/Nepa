@@ -28,7 +28,7 @@ static char advance(Lexer *lexer) {
 static void skip_whitespace_and_comments(Lexer *lexer) {
     for (;;) {
         char c = peek(lexer);
-        if (c == ' ' || c == '\t' || c == '\r' || c == '\n') {
+        if (c == ' ' || c == '\t' || c == '\r') {
             advance(lexer);
         } else if (c == '#') {
             while (peek(lexer) != '\n' && peek(lexer) != '\0') {
@@ -81,7 +81,11 @@ static Token ident_token(Lexer *lexer) {
     }
 
     int length = (int)(lexer->current - start);
-    return make_token(TOKEN_IDENT, start, length, line, col);
+    TokenType type = TOKEN_IDENT;
+    if (length == 4 && strncmp(start, "vana", 4) == 0) {
+        type = TOKEN_VANA;
+    }
+    return make_token(type, start, length, line, col);
 }
 
 Token lexer_next_token(Lexer *lexer) {
@@ -114,6 +118,8 @@ Token lexer_next_token(Lexer *lexer) {
         case '%': return make_token(TOKEN_PERCENT, start, 1, line, col);
         case '(': return make_token(TOKEN_LPAREN, start, 1, line, col);
         case ')': return make_token(TOKEN_RPAREN, start, 1, line, col);
+        case '=': return make_token(TOKEN_EQUAL, start, 1, line, col);
+        case '\n': return make_token(TOKEN_NEWLINE, start, 1, line, col);
         default:  return make_token(TOKEN_ERROR, start, 1, line, col);
     }
 }

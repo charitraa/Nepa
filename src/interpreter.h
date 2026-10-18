@@ -3,6 +3,6 @@
 
 #include "ast.h"
 
-void interpret(AstNode *program);
+void interpret(AstNode *program, const char *source, const char *filename);
 
 #endif

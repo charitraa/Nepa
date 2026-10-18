@@ -1,0 +1,10 @@
+# Milestone 2: variables
+mool = 5000       # principal
+dar = 10          # rate (%)
+barsa = 3         # years
+
+byaj = mool * dar * barsa / 100
+vana(byaj)
+
+mool = mool + byaj
+vana(mool)

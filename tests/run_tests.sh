@@ -2,9 +2,12 @@
 set -u
 
 BIN="bin/nepa"
-DIR="tests/calculator"
 pass=0
 fail=0
+
+for DIR in tests/*/; do
+DIR="${DIR%/}"
+echo "== $(basename "$DIR")"
 
 for src in "$DIR"/*.error.nepa; do
     [ -e "$src" ] || continue
@@ -39,6 +42,8 @@ for src in "$DIR"/*.nepa; do
         echo "FAIL  $name.nepa  (expected '$expected', got '$actual')"
         fail=$((fail + 1))
     fi
+done
+
 done
 
 echo ""

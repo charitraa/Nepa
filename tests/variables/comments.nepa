@@ -1,0 +1,8 @@
+# comments and blank lines are fine
+
+
+mool = 1000   # principal
+byaj = 5
+
+
+vana(mool * byaj / 100)

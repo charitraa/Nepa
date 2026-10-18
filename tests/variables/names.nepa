@@ -1,0 +1,4 @@
+umar_2 = 22
+_temp = -umar_2
+vana(_temp)
+vana(-(umar_2 % 5) + _temp)
