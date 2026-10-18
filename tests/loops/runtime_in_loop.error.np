@@ -1,0 +1,3 @@
+ko_lagi i in 0..3 {
+    vana(i / (i - 2))
+}

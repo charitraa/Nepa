@@ -1,0 +1,7 @@
+n = 10
+phal = 1
+jabasamma n > 1 {
+    phal = phal * n
+    n = n - 1
+}
+vana(phal)

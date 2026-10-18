@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -g
 SRC = src/lexer.c src/ast.c src/parser.c src/interpreter.c src/diagnostics.c src/main.c
-BIN = bin/nepa
+BIN = bin/neplang
 
 .PHONY: all debug test clean
 

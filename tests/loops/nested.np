@@ -1,0 +1,6 @@
+# multiplication table rows 1..3, cols 1..3
+ko_lagi i in 1..4 {
+    ko_lagi j in 1..4 {
+        vana(i * j)
+    }
+}

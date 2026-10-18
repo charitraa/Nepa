@@ -1,0 +1,16 @@
+# Milestones 3 & 4: yedi/natara, jabasamma, ko_lagi
+
+# prime numbers below 30
+ko_lagi n in 2..30 {
+    prime = 1
+    d = 2
+    jabasamma d * d <= n {
+        yedi n % d == 0 {
+            prime = 0
+        }
+        d = d + 1
+    }
+    yedi prime {
+        vana(n)
+    }
+}

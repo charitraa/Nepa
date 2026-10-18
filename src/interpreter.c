@@ -41,7 +41,7 @@ static void set_variable(Interpreter *interp, Token name, long value) {
         int capacity = interp->capacity == 0 ? 8 : interp->capacity * 2;
         Variable *vars = realloc(interp->vars, sizeof(Variable) * (size_t)capacity);
         if (!vars) {
-            fprintf(stderr, "nepa: out of memory\n");
+            fprintf(stderr, "neplang: out of memory\n");
             exit(1);
         }
         interp->vars = vars;
@@ -83,28 +83,39 @@ static long eval(Interpreter *interp, AstNode *node) {
             long left = eval(interp, node->as.binop.left);
             long right = eval(interp, node->as.binop.right);
             switch (node->as.binop.op) {
-                case '+': return left + right;
-                case '-': return left - right;
-                case '*': return left * right;
-                case '/':
+                case TOKEN_PLUS:          return left + right;
+                case TOKEN_MINUS:         return left - right;
+                case TOKEN_STAR:          return left * right;
+                case TOKEN_EQUAL_EQUAL:   return left == right;
+                case TOKEN_BANG_EQUAL:    return left != right;
+                case TOKEN_LESS:          return left < right;
+                case TOKEN_LESS_EQUAL:    return left <= right;
+                case TOKEN_GREATER:       return left > right;
+                case TOKEN_GREATER_EQUAL: return left >= right;
+                case TOKEN_SLASH:
                     if (right == 0) {
                         fprintf(stderr, "Runtime error: division by zero.\n");
                         exit(1);
                     }
                     return left / right;
-                case '%':
+                case TOKEN_PERCENT:
                     if (right == 0) {
                         fprintf(stderr, "Runtime error: modulo by zero.\n");
                         exit(1);
                     }
                     return left % right;
+                default:
+                    break;
             }
             break;
         }
 
         case AST_ASSIGN:
         case AST_PRINT:
-        case AST_PROGRAM:
+        case AST_IF:
+        case AST_WHILE:
+        case AST_FOR:
+        case AST_BLOCK:
             fprintf(stderr, "Internal error: statement node inside expression.\n");
             exit(1);
     }
@@ -123,6 +134,39 @@ static void execute(Interpreter *interp, AstNode *node) {
             set_variable(interp, node->as.assign.name, eval(interp, node->as.assign.value));
             break;
 
+        case AST_IF:
+            /* No boolean type yet: any non-zero value counts as true. */
+            if (eval(interp, node->as.if_stmt.condition) != 0) {
+                execute(interp, node->as.if_stmt.then_block);
+            } else if (node->as.if_stmt.else_branch) {
+                execute(interp, node->as.if_stmt.else_branch);
+            }
+            break;
+
+        case AST_WHILE:
+            while (eval(interp, node->as.while_stmt.condition) != 0) {
+                execute(interp, node->as.while_stmt.body);
+            }
+            break;
+
+        case AST_FOR: {
+            /* Bounds are evaluated once. The loop variable is reassigned from an internal
+             * counter each iteration, so changing it inside the body doesn't skip iterations. */
+            long start = eval(interp, node->as.for_stmt.start);
+            long end = eval(interp, node->as.for_stmt.end);
+            for (long i = start; i < end; i++) {
+                set_variable(interp, node->as.for_stmt.var, i);
+                execute(interp, node->as.for_stmt.body);
+            }
+            break;
+        }
+
+        case AST_BLOCK:
+            for (int i = 0; i < node->as.block.count; i++) {
+                execute(interp, node->as.block.statements[i]);
+            }
+            break;
+
         default:
             fprintf(stderr, "Internal error: expression node used as a statement.\n");
             exit(1);
@@ -130,14 +174,12 @@ static void execute(Interpreter *interp, AstNode *node) {
 }
 
 void interpret(AstNode *program, const char *source, const char *filename) {
-    if (program->type != AST_PROGRAM) {
-        fprintf(stderr, "Internal error: program root is not a program node.\n");
+    if (program->type != AST_BLOCK) {
+        fprintf(stderr, "Internal error: program root is not a block node.\n");
         exit(1);
     }
 
     Interpreter interp = { NULL, 0, 0, source, filename };
-    for (int i = 0; i < program->as.program.count; i++) {
-        execute(&interp, program->as.program.statements[i]);
-    }
+    execute(&interp, program);
     free(interp.vars);
 }

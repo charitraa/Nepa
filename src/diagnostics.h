@@ -1,5 +1,5 @@
-#ifndef NEPA_DIAGNOSTICS_H
-#define NEPA_DIAGNOSTICS_H
+#ifndef NEPLANG_DIAGNOSTICS_H
+#define NEPLANG_DIAGNOSTICS_H
 
 #include "token.h"
 

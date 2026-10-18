@@ -1,0 +1,5 @@
+# no boolean type yet: non-zero is true, zero is false
+yedi 7 { vana(1) }
+yedi 0 { vana(2) } natara { vana(3) }
+x = 4
+yedi x % 2 { vana(10) } natara { vana(20) }

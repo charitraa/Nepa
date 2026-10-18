@@ -1,0 +1,12 @@
+# fizzbuzz-ish with numbers: 3 -> -3, 5 -> -5, 15 -> -15
+ko_lagi n in 1..16 {
+    yedi n % 15 == 0 {
+        vana(-15)
+    } natara yedi n % 3 == 0 {
+        vana(-3)
+    } natara yedi n % 5 == 0 {
+        vana(-5)
+    } natara {
+        vana(n)
+    }
+}

@@ -34,4 +34,4 @@ editors/vscode/*.vsix
 Thumbs.db
 
 # Local scratch
-test.nepa
+test.np

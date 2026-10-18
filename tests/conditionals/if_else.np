@@ -1,0 +1,12 @@
+umar = 22
+yedi umar >= 18 {
+    vana(1)
+} natara {
+    vana(0)
+}
+umar = 10
+yedi umar >= 18 {
+    vana(1)
+} natara {
+    vana(0)
+}

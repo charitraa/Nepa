@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -u
 
-BIN="bin/nepa"
+BIN="bin/neplang"
 pass=0
 fail=0
 
@@ -9,7 +9,7 @@ for DIR in tests/*/; do
 DIR="${DIR%/}"
 echo "== $(basename "$DIR")"
 
-for src in "$DIR"/*.error.nepa; do
+for src in "$DIR"/*.error.np; do
     [ -e "$src" ] || continue
     name=$(basename "$src")
     "$BIN" "$src" >/dev/null 2>/dev/null
@@ -23,12 +23,12 @@ for src in "$DIR"/*.error.nepa; do
     fi
 done
 
-for src in "$DIR"/*.nepa; do
+for src in "$DIR"/*.np; do
     [ -e "$src" ] || continue
     case "$src" in
-        *.error.nepa) continue ;;
+        *.error.np) continue ;;
     esac
-    name=$(basename "$src" .nepa)
+    name=$(basename "$src" .np)
     expected_file="$DIR/$name.expected"
     [ -e "$expected_file" ] || continue
 
@@ -36,15 +36,24 @@ for src in "$DIR"/*.nepa; do
     expected=$(cat "$expected_file")
 
     if [ "$actual" == "$expected" ]; then
-        echo "PASS  $name.nepa"
+        echo "PASS  $name.np"
         pass=$((pass + 1))
     else
-        echo "FAIL  $name.nepa  (expected '$expected', got '$actual')"
+        echo "FAIL  $name.np  (expected '$expected', got '$actual')"
         fail=$((fail + 1))
     fi
 done
 
 done
+
+echo "== cli"
+if "$BIN" tests/calculator/basic.expected >/dev/null 2>&1; then
+    echo "FAIL  non-.np file was accepted"
+    fail=$((fail + 1))
+else
+    echo "PASS  non-.np file rejected"
+    pass=$((pass + 1))
+fi
 
 echo ""
 echo "$pass passed, $fail failed"

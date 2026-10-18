@@ -4,41 +4,44 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Nepa is a compiled programming language for Nepali developers, mixing romanized Nepali
+NepLang is a compiled programming language for Nepali developers, mixing romanized Nepali
 control-flow/keyword vocabulary with English technical terms (e.g. `vana` = print,
 `yedi`/`natara` = if/else, `kaam` = function, `farkau` = return). The compiler/interpreter
 is implemented in C (C11), built incrementally, milestone by milestone.
 
-**Current status: Milestone 2 (Variables) is complete.** A program is a sequence of
-newline-terminated statements: `vana(expr)` (print) and `name = expr` (assignment, which
-creates the variable on first use — no declaration keyword, per `docs/prompt.txt`). Values
-are integers only; `+ - * / %`, parentheses, unary `+`/`-`, and variable references.
-There are no strings, conditionals, loops, user-defined functions, arrays, or classes yet.
+**Current status: Milestone 4 (Loops) is complete.** A program is a sequence of
+newline-terminated statements: `vana(expr)` (print), `name = expr` (assignment, which
+creates the variable on first use — no declaration keyword, per `docs/prompt.txt`),
+`yedi cond { } natara yedi cond { } natara { }`, `jabasamma cond { }` (while), and
+`ko_lagi i in a..b { }` (for; end-exclusive, bounds evaluated once). Values are integers
+only; comparisons `== != < <= > >=` yield 1/0 and any non-zero value is truthy (there is no
+bool type yet). There are no strings, booleans, logical operators, break/continue,
+user-defined functions, arrays, or classes yet.
 
 ## Commands
 
 ```bash
-make          # build bin/nepa
+make          # build bin/neplang
 make debug    # build with -fsanitize=address,undefined (use this while developing)
 make test     # build, then run tests/run_tests.sh
 make clean    # remove bin/
 
-./bin/nepa examples/hello_calc.nepa   # run a program
-./bin/nepa path/to/file.nepa          # run any .nepa source file
+./bin/neplang examples/hello_calc.np   # run a program
+./bin/neplang path/to/file.np          # run any .np source file
 ```
 
 Run a single test case manually (bypassing the harness):
 ```bash
-./bin/nepa tests/calculator/basic.nepa
+./bin/neplang tests/calculator/basic.np
 ```
 
 There is no test framework beyond `tests/run_tests.sh`, a plain bash script:
 - Every subdirectory of `tests/` is a suite (`calculator/`, `variables/`, ...).
-- Any `tests/SUITE/NAME.nepa` with a matching `NAME.expected` is run and its stdout diffed
+- Any `tests/SUITE/NAME.np` with a matching `NAME.expected` is run and its stdout diffed
   against the `.expected` file.
-- Any `tests/SUITE/NAME.error.nepa` is expected to exit non-zero (syntax/runtime errors);
+- Any `tests/SUITE/NAME.error.np` is expected to exit non-zero (syntax/runtime errors);
   there is no matching `.expected` file for these.
-- To add a test: drop a new `.nepa`/`.expected` pair (or `.error.nepa` for a failure case) into
+- To add a test: drop a new `.np`/`.expected` pair (or `.error.np` for a failure case) into
   a suite directory; a new milestone gets a new directory — no registration needed.
 
 ## Architecture
@@ -54,18 +57,30 @@ source file → Lexer → Token stream → Parser (recursive descent) → AST �
 - `src/lexer.c` — hand-written scanner, one token at a time via `lexer_next_token()`. Tracks
   line/col for diagnostics. `#` starts a line comment.
   Newlines are significant: `\n` is emitted as `TOKEN_NEWLINE` (statement terminator), so an
-  expression cannot currently span lines. `vana` is lexed as the keyword `TOKEN_VANA`; new
-  keywords should be added the same way in `ident_token()`.
+  expression cannot currently span lines. Keywords (`vana`, `yedi`, `natara`, `jabasamma`,
+  `ko_lagi`, `in`) get their own token types via the `keywords[]` table in `lexer.c` — add new
+  keywords there.
 - `src/parser.c` — recursive descent. Operator precedence is encoded by the *call chain*, not
-  a precedence table: `parse_expr` (handles `+ -`) calls `parse_term` (handles `* / %`) calls
-  `parse_factor` (numbers, parens, unary sign). When adding new operators, insert a new
-  precedence level as a new function in this chain rather than adding a table.
+  a precedence table: `parse_comparison` (non-associative `== != < <= > >=`; the entry point
+  for full expressions) calls `parse_expr` (handles `+ -`) calls `parse_term` (handles `* / %`)
+  calls `parse_factor` (numbers, variables, parens, unary sign). When adding new operators,
+  insert a new precedence level as a new function in this chain rather than adding a table.
+  `ko_lagi` range bounds use `parse_expr`, not `parse_comparison`.
+  Statements: `parse_statements(parser, block, end)` is shared by the top level (`end` =
+  `TOKEN_EOF`) and `{ }` blocks (`end` = `TOKEN_RBRACE`); a statement must be followed by a
+  newline or the block's closing `}`. `natara` must follow `}` on the same line, since the
+  parser has a single token of lookahead and newlines are tokens. `reject_keyword_as_name()`
+  gives the "reserved keyword" error for things like `yedi = 5`. Only the first error is
+  reported (`had_error` stops parsing).
 - `src/ast.h`/`ast.c` — tagged-union AST nodes (`AST_NUMBER`, `AST_BINOP`, `AST_UNARY`,
-  `AST_VARIABLE`, `AST_ASSIGN`, `AST_PRINT`, and the root `AST_PROGRAM` holding a growable
-  statement array). Variable/assign nodes keep their name `Token` for error locations. `ast_free` recursively frees a tree; every node allocated by `ast_new_*` must
+  `AST_VARIABLE`, `AST_ASSIGN`, `AST_PRINT`, `AST_IF`, `AST_WHILE`, `AST_FOR`, and
+  `AST_BLOCK` — a growable statement array used both for `{ }` bodies and as the program
+  root). `binop.op` is a `TokenType` (two-char operators don't fit a `char`); `unary.op` is
+  still a `char`. An `else_branch` is either a block or a nested `AST_IF` (for `natara yedi`). Variable/assign nodes keep their name `Token` for error locations. `ast_free` recursively frees a tree; every node allocated by `ast_new_*` must
   eventually pass through it.
 - `src/interpreter.c` — tree-walking evaluator: `execute` runs statements, `eval` evaluates
-  expressions, directly on the AST (no IR). Variables live in a flat, linearly-searched global
+  expressions, directly on the AST (no IR). There is no block scope: all variables (including
+  `ko_lagi` loop variables) are global and persist after the block ends. Variables live in a flat, linearly-searched global
   list (names are source slices) — deliberately simple; the hashed, scoped symbol table is its
   own later milestone. Undefined variables are reported via `report_error` with a caret;
   division/modulo by zero print a message and `exit(1)`.
@@ -90,7 +105,7 @@ type checker → modules → bytecode VM → IR → native codegen). When extend
   early (e.g. don't add floats or general function calls while working on variables).
 - Every milestone must compile cleanly (`-Wall -Wextra -Wpedantic`, zero warnings) and pass
   `make test` before moving on. Add test cases under `tests/` for every new feature, including
-  at least one `.error.nepa` case where relevant.
+  at least one `.error.np` case where relevant.
 - Build with `make debug` (ASan/UBSan) while developing; the interpreter does manual
   `malloc`/`free` (see `ast_free`), so sanitizer runs are the main safety net.
 - Keep new language keywords consistent with the project's Nepali/English mix — Nepali for

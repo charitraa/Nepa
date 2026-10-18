@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-  "name": "Nepa",
-  "scopeName": "source.nepa",
+  "name": "NepLang",
+  "scopeName": "source.neplang",
   "patterns": [
     { "include": "#comment" },
     { "include": "#string" },
@@ -13,36 +13,36 @@
   ],
   "repository": {
     "comment": {
-      "name": "comment.line.number-sign.nepa",
+      "name": "comment.line.number-sign.neplang",
       "match": "#.*$"
     },
     "string": {
-      "name": "string.quoted.double.nepa",
+      "name": "string.quoted.double.neplang",
       "begin": "\"",
       "end": "\"",
-      "patterns": [{ "name": "constant.character.escape.nepa", "match": "\\\\." }]
+      "patterns": [{ "name": "constant.character.escape.neplang", "match": "\\\\." }]
     },
     "number": {
-      "name": "constant.numeric.nepa",
+      "name": "constant.numeric.neplang",
       "match": "\\b[0-9]+(\\.[0-9]+)?\\b"
     },
     "keyword": {
       "patterns": [
-        { "name": "keyword.control.nepa", "match": "\\b(yedi|natara|jabasamma|ko_lagi|farkau)\\b" },
-        { "name": "storage.type.function.nepa", "match": "\\b(kaam)\\b" },
-        { "name": "keyword.other.nepa", "match": "\\b(banau|class|interface|import)\\b" }
+        { "name": "keyword.control.neplang", "match": "\\b(yedi|natara|jabasamma|ko_lagi|in|farkau)\\b" },
+        { "name": "storage.type.function.neplang", "match": "\\b(kaam)\\b" },
+        { "name": "keyword.other.neplang", "match": "\\b(banau|class|interface|import)\\b" }
       ]
     },
     "builtin": {
-      "name": "support.function.builtin.nepa",
+      "name": "support.function.builtin.neplang",
       "match": "\\b(vana)\\b"
     },
     "function-call": {
-      "name": "entity.name.function.nepa",
+      "name": "entity.name.function.neplang",
       "match": "\\b[A-Za-z_][A-Za-z0-9_]*(?=\\s*\\()"
     },
     "operator": {
-      "name": "keyword.operator.nepa",
+      "name": "keyword.operator.neplang",
       "match": "==|!=|<=|>=|[-+*/%=<>!]"
     }
   }

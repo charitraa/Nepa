@@ -1,0 +1,11 @@
+a = 5
+b = 12
+yedi a > 0 {
+    yedi b > 10 {
+        vana(1)
+        b = b - 10
+    } natara {
+        vana(2)
+    }
+    vana(b)
+}

@@ -1,0 +1,8 @@
+x = 3
+yedi x > 5 {
+    vana(100)
+}
+yedi x < 5 {
+    vana(200)
+}
+vana(x)

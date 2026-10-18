@@ -1,0 +1,7 @@
+ko_lagi i in 5..5 {
+    vana(i)
+}
+ko_lagi i in 5..2 {
+    vana(i)
+}
+vana(-1)

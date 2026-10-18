@@ -1,0 +1,5 @@
+umar = 20
+jabasamma umar < 25 {
+    umar = umar + 1
+}
+vana(umar)

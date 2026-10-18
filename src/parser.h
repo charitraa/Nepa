@@ -1,5 +1,5 @@
-#ifndef NEPA_PARSER_H
-#define NEPA_PARSER_H
+#ifndef NEPLANG_PARSER_H
+#define NEPLANG_PARSER_H
 
 #include "lexer.h"
 #include "ast.h"

@@ -1,0 +1,6 @@
+n = 3
+jamma = 0
+ko_lagi i in n - 2..n * 2 + 1 {
+    jamma = jamma + i
+}
+vana(jamma)

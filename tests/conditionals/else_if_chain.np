@@ -1,0 +1,21 @@
+# grade: 1 = distinction, 2 = first, 3 = second, 4 = fail
+ank = 65
+yedi ank >= 80 {
+    vana(1)
+} natara yedi ank >= 60 {
+    vana(2)
+} natara yedi ank >= 40 {
+    vana(3)
+} natara {
+    vana(4)
+}
+ank = 12
+yedi ank >= 80 {
+    vana(1)
+} natara yedi ank >= 60 {
+    vana(2)
+} natara yedi ank >= 40 {
+    vana(3)
+} natara {
+    vana(4)
+}

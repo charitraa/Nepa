@@ -1,0 +1,4 @@
+x = 0
+jabasamma x = 1 {
+    x = 1
+}

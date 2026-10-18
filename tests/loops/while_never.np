@@ -1,0 +1,5 @@
+x = 10
+jabasamma x < 5 {
+    vana(x)
+}
+vana(0)

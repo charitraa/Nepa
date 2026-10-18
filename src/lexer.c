@@ -71,6 +71,33 @@ static Token number_token(Lexer *lexer) {
     return token;
 }
 
+static int match(Lexer *lexer, char expected) {
+    if (peek(lexer) != expected) return 0;
+    advance(lexer);
+    return 1;
+}
+
+static const struct {
+    const char *text;
+    TokenType type;
+} keywords[] = {
+    { "vana",      TOKEN_VANA },
+    { "yedi",      TOKEN_YEDI },
+    { "natara",    TOKEN_NATARA },
+    { "jabasamma", TOKEN_JABASAMMA },
+    { "ko_lagi",   TOKEN_KO_LAGI },
+    { "in",        TOKEN_IN },
+};
+
+static TokenType keyword_type(const char *start, int length) {
+    for (size_t i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
+        if (strlen(keywords[i].text) == (size_t)length && strncmp(start, keywords[i].text, (size_t)length) == 0) {
+            return keywords[i].type;
+        }
+    }
+    return TOKEN_IDENT;
+}
+
 static Token ident_token(Lexer *lexer) {
     const char *start = lexer->current;
     int line = lexer->line;
@@ -81,11 +108,7 @@ static Token ident_token(Lexer *lexer) {
     }
 
     int length = (int)(lexer->current - start);
-    TokenType type = TOKEN_IDENT;
-    if (length == 4 && strncmp(start, "vana", 4) == 0) {
-        type = TOKEN_VANA;
-    }
-    return make_token(type, start, length, line, col);
+    return make_token(keyword_type(start, length), start, length, line, col);
 }
 
 Token lexer_next_token(Lexer *lexer) {
@@ -118,7 +141,23 @@ Token lexer_next_token(Lexer *lexer) {
         case '%': return make_token(TOKEN_PERCENT, start, 1, line, col);
         case '(': return make_token(TOKEN_LPAREN, start, 1, line, col);
         case ')': return make_token(TOKEN_RPAREN, start, 1, line, col);
-        case '=': return make_token(TOKEN_EQUAL, start, 1, line, col);
+        case '.':
+            if (match(lexer, '.')) return make_token(TOKEN_DOT_DOT, start, 2, line, col);
+            return make_token(TOKEN_ERROR, start, 1, line, col);
+        case '{': return make_token(TOKEN_LBRACE, start, 1, line, col);
+        case '}': return make_token(TOKEN_RBRACE, start, 1, line, col);
+        case '=':
+            if (match(lexer, '=')) return make_token(TOKEN_EQUAL_EQUAL, start, 2, line, col);
+            return make_token(TOKEN_EQUAL, start, 1, line, col);
+        case '!':
+            if (match(lexer, '=')) return make_token(TOKEN_BANG_EQUAL, start, 2, line, col);
+            return make_token(TOKEN_ERROR, start, 1, line, col);
+        case '<':
+            if (match(lexer, '=')) return make_token(TOKEN_LESS_EQUAL, start, 2, line, col);
+            return make_token(TOKEN_LESS, start, 1, line, col);
+        case '>':
+            if (match(lexer, '=')) return make_token(TOKEN_GREATER_EQUAL, start, 2, line, col);
+            return make_token(TOKEN_GREATER, start, 1, line, col);
         case '\n': return make_token(TOKEN_NEWLINE, start, 1, line, col);
         default:  return make_token(TOKEN_ERROR, start, 1, line, col);
     }

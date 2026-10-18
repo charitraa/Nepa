@@ -1,5 +1,5 @@
-#ifndef NEPA_INTERPRETER_H
-#define NEPA_INTERPRETER_H
+#ifndef NEPLANG_INTERPRETER_H
+#define NEPLANG_INTERPRETER_H
 
 #include "ast.h"
 

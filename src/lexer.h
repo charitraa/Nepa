@@ -1,5 +1,5 @@
-#ifndef NEPA_LEXER_H
-#define NEPA_LEXER_H
+#ifndef NEPLANG_LEXER_H
+#define NEPLANG_LEXER_H
 
 #include "token.h"
 
