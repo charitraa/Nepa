@@ -1,0 +1,5 @@
+kaam f() {
+    bhitra = 5
+}
+f()
+vana(bhitra)

@@ -19,7 +19,10 @@ typedef enum {
     TOKEN_GREATER_EQUAL,
     TOKEN_LBRACE,
     TOKEN_RBRACE,
+    TOKEN_LBRACKET,
+    TOKEN_RBRACKET,
     TOKEN_DOT_DOT,
+    TOKEN_COMMA,
     TOKEN_NEWLINE,
     TOKEN_IDENT,
     TOKEN_VANA,
@@ -28,6 +31,8 @@ typedef enum {
     TOKEN_JABASAMMA,
     TOKEN_KO_LAGI,
     TOKEN_IN,
+    TOKEN_KAAM,
+    TOKEN_FARKAU,
     TOKEN_EOF,
     TOKEN_ERROR
 } TokenType;

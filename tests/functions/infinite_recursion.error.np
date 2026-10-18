@@ -1,0 +1,4 @@
+kaam f(n) {
+    farkau f(n + 1)
+}
+vana(f(0))

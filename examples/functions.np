@@ -1,0 +1,25 @@
+# Milestone 5: kaam (function) and farkau (return)
+
+kaam jamma(a, b) {
+    farkau a + b
+}
+
+kaam factorial(n) {
+    yedi n <= 1 {
+        farkau 1
+    }
+    farkau n * factorial(n - 1)
+}
+
+kaam gcd(a, b) {
+    jabasamma b != 0 {
+        baki = a % b
+        a = b
+        b = baki
+    }
+    farkau a
+}
+
+vana(jamma(10, 20))
+vana(factorial(6))
+vana(gcd(84, 36))

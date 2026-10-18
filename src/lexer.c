@@ -87,6 +87,8 @@ static const struct {
     { "jabasamma", TOKEN_JABASAMMA },
     { "ko_lagi",   TOKEN_KO_LAGI },
     { "in",        TOKEN_IN },
+    { "kaam",      TOKEN_KAAM },
+    { "farkau",    TOKEN_FARKAU },
 };
 
 static TokenType keyword_type(const char *start, int length) {
@@ -132,6 +134,16 @@ Token lexer_next_token(Lexer *lexer) {
         return ident_token(lexer);
     }
 
+    /* A non-ASCII character (e.g. Devanagari): swallow the whole UTF-8 sequence so the
+     * error token covers the full character rather than a single byte. */
+    if ((unsigned char)c >= 0x80) {
+        advance(lexer);
+        while (((unsigned char)peek(lexer) & 0xC0) == 0x80) {
+            advance(lexer);
+        }
+        return make_token(TOKEN_ERROR, start, (int)(lexer->current - start), line, col);
+    }
+
     advance(lexer);
     switch (c) {
         case '+': return make_token(TOKEN_PLUS, start, 1, line, col);
@@ -144,6 +156,9 @@ Token lexer_next_token(Lexer *lexer) {
         case '.':
             if (match(lexer, '.')) return make_token(TOKEN_DOT_DOT, start, 2, line, col);
             return make_token(TOKEN_ERROR, start, 1, line, col);
+        case '[': return make_token(TOKEN_LBRACKET, start, 1, line, col);
+        case ']': return make_token(TOKEN_RBRACKET, start, 1, line, col);
+        case ',': return make_token(TOKEN_COMMA, start, 1, line, col);
         case '{': return make_token(TOKEN_LBRACE, start, 1, line, col);
         case '}': return make_token(TOKEN_RBRACE, start, 1, line, col);
         case '=':

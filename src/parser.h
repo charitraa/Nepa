@@ -10,6 +10,8 @@ typedef struct {
     const char *filename;
     Token current;
     int had_error;
+    int block_depth;   /* > 0 while inside any '{ }' block */
+    int in_function;   /* 1 while parsing a 'kaam' body */
 } Parser;
 
 void parser_init(Parser *parser, Lexer *lexer, const char *source, const char *filename);

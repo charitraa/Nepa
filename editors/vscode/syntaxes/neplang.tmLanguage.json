@@ -35,7 +35,7 @@
     },
     "builtin": {
       "name": "support.function.builtin.neplang",
-      "match": "\\b(vana)\\b"
+      "match": "\\b(vana|lambai)\\b"
     },
     "function-call": {
       "name": "entity.name.function.neplang",

@@ -1,0 +1,7 @@
+kaam badal(n) {
+    n = n + 100
+    farkau n
+}
+a = 1
+vana(badal(a))
+vana(a)

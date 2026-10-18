@@ -1,0 +1,6 @@
+mahina = [
+    31, 28, 31,
+    30, 31, 30
+]
+vana(lambai(mahina))
+vana(mahina)

@@ -1,0 +1,5 @@
+# assigning an array shares it (like Python/Java); it is not copied
+a = [1, 2, 3]
+b = a
+b[0] = 99
+vana(a)

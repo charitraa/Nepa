@@ -1,0 +1,12 @@
+kaam factorial(n) {
+    yedi n <= 1 {
+        farkau 1
+    }
+    farkau n * factorial(n - 1)
+}
+kaam fib(n) {
+    yedi n < 2 { farkau n }
+    farkau fib(n - 1) + fib(n - 2)
+}
+vana(factorial(10))
+vana(fib(20))

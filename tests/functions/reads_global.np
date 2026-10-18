@@ -1,0 +1,7 @@
+dar = 13
+kaam kar(rakam) {
+    farkau rakam * dar / 100
+}
+vana(kar(1000))
+dar = 10
+vana(kar(1000))

@@ -1,0 +1,8 @@
+# spec section 12: assigning inside a function creates a local; the global is untouched
+x = 10
+kaam test() {
+    x = 20
+    vana(x)
+}
+test()
+vana(x)

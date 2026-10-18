@@ -1,0 +1,7 @@
+numbers = [10, 20, 30, 40]
+vana(numbers[0])
+vana(numbers[3])
+vana(numbers)
+vana(lambai(numbers))
+vana([])
+vana(lambai([]))

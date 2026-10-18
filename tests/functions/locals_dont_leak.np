@@ -1,0 +1,8 @@
+kaam f() {
+    bhitra = 5
+    ko_lagi i in 0..3 { }
+    farkau bhitra
+}
+vana(f())
+i = 42
+vana(i)

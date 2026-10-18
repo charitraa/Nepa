@@ -1,0 +1,32 @@
+# Milestone 6: arrays
+
+ank = [72, 45, 91, 60, 38]
+
+kaam ausat(arr) {
+    jamma = 0
+    ko_lagi x in arr {
+        jamma = jamma + x
+    }
+    farkau jamma / lambai(arr)
+}
+
+kaam sabai_bhanda_thulo(arr) {
+    thulo = arr[0]
+    ko_lagi x in arr {
+        yedi x > thulo {
+            thulo = x
+        }
+    }
+    farkau thulo
+}
+
+vana(ank)
+vana(ausat(ank))
+vana(sabai_bhanda_thulo(ank))
+
+# 3x3 identity matrix
+m = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+ko_lagi i in 0..3 {
+    m[i][i] = 1
+}
+vana(m)

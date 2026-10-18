@@ -1,0 +1,16 @@
+# farkau exits nested loops and blocks immediately
+kaam khoja(n, lakshya) {
+    ko_lagi i in 1..n {
+        j = 0
+        jabasamma j < 3 {
+            yedi i * j == lakshya {
+                farkau i
+            }
+            j = j + 1
+        }
+    }
+    farkau -1
+}
+vana(khoja(20, 6))
+vana(khoja(20, 7))
+vana(khoja(5, 7))

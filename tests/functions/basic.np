@@ -1,0 +1,6 @@
+kaam jamma(a, b) {
+    farkau a + b
+}
+result = jamma(10, 20)
+vana(result)
+vana(jamma(1, 2) * jamma(3, 4))

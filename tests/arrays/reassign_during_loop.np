@@ -1,0 +1,7 @@
+# the loop keeps its own reference, so reassigning the variable is safe
+a = [1, 2, 3]
+ko_lagi x in a {
+    a = [0]
+    vana(x)
+}
+vana(a)

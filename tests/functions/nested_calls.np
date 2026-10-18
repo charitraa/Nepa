@@ -1,0 +1,4 @@
+kaam double(n) { farkau n * 2 }
+kaam add(a, b) { farkau a + b }
+vana(add(double(3), double(add(1, 1))))
+vana(double(double(double(1))) > 7)

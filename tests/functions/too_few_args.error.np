@@ -1,0 +1,4 @@
+kaam jamma(a, b) {
+    farkau a + b
+}
+vana(jamma(1))

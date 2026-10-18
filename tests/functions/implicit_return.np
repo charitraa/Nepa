@@ -1,0 +1,13 @@
+# a function that ends without 'farkau', or with a bare 'farkau', returns 0
+kaam kehi_chaina() {
+    x = 5
+}
+kaam chado(n) {
+    yedi n > 0 {
+        farkau
+    }
+    farkau 99
+}
+vana(kehi_chaina())
+vana(chado(1))
+vana(chado(0))

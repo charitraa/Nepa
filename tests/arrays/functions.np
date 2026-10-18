@@ -1,0 +1,22 @@
+# arrays can be passed to, changed by, and returned from functions
+kaam jamma(arr) {
+    total = 0
+    ko_lagi x in arr {
+        total = total + x
+    }
+    farkau total
+}
+kaam double_all(arr) {
+    ko_lagi i in 0..lambai(arr) {
+        arr[i] = arr[i] * 2
+    }
+}
+kaam banau_array(n) {
+    farkau [n, n * n, n * n * n]
+}
+nums = [1, 2, 3]
+vana(jamma(nums))
+double_all(nums)
+vana(nums)
+vana(banau_array(3))
+vana(banau_array(2)[2])

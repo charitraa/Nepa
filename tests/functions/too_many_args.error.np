@@ -1,0 +1,4 @@
+kaam ek() {
+    farkau 1
+}
+vana(ek(1, 2))

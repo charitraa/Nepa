@@ -1,0 +1,84 @@
+# Builds prebuilt NepLang binaries and attaches them to a GitHub Release.
+# Triggered by pushing a version tag, e.g.:  git tag v0.5.0 && git push origin v0.5.0
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            asset: neplang-linux-x86_64
+          - os: ubuntu-24.04-arm
+            asset: neplang-linux-arm64
+          - os: macos-latest
+            asset: neplang-macos-universal
+          - os: windows-latest
+            asset: neplang-windows-x86_64.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          make test
+          make clean
+          make CFLAGS="-std=c11 -Wall -Wextra -Wpedantic -O2 -static"
+          cp bin/neplang ${{ matrix.asset }}
+
+      - name: Build (macOS, arm64 + x86_64)
+        if: runner.os == 'macOS'
+        run: |
+          make test
+          make clean
+          make CC=clang CFLAGS="-std=c11 -Wall -Wextra -Wpedantic -O2 -arch arm64 -arch x86_64 -mmacosx-version-min=11.0"
+          cp bin/neplang ${{ matrix.asset }}
+
+      - name: Set up MSYS2 (Windows)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          install: mingw-w64-ucrt-x86_64-gcc make
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          make test
+          make clean
+          make CFLAGS="-std=c11 -Wall -Wextra -Wpedantic -O2 -static"
+          cp bin/neplang.exe ${{ matrix.asset }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: ${{ matrix.asset }}
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        run: cd dist && sha256sum * > SHA256SUMS
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

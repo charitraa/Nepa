@@ -1,0 +1,8 @@
+m = [[1, 2], [3, 4], [5, 6]]
+vana(m[1][0])
+m[2][1] = 60
+vana(m)
+vana(lambai(m[0]))
+ko_lagi row in m {
+    vana(row[0] + row[1])
+}

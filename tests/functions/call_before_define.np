@@ -1,0 +1,11 @@
+# functions can be called above their definition, and can call each other
+vana(is_even(10))
+vana(is_even(7))
+kaam is_even(n) {
+    yedi n == 0 { farkau 1 }
+    farkau is_odd(n - 1)
+}
+kaam is_odd(n) {
+    yedi n == 0 { farkau 0 }
+    farkau is_even(n - 1)
+}

@@ -1,0 +1,13 @@
+phal = [3, 1, 4, 1, 5]
+jamma = 0
+ko_lagi x in phal {
+    jamma = jamma + x
+}
+vana(jamma)
+ko_lagi i in 0..lambai(phal) {
+    phal[i] = phal[i] * 2
+}
+vana(phal)
+ko_lagi x in [] {
+    vana(999)
+}
