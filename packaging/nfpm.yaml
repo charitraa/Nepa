@@ -1,0 +1,33 @@
+# .deb / .rpm package definition for nfpm (https://nfpm.goreleaser.com).
+# Used by .github/workflows/release.yml; NEPLANG_VERSION and NFPM_ARCH (amd64 | arm64)
+# and NEPLANG_BINARY come from the environment.
+name: neplang
+arch: ${NFPM_ARCH}
+platform: linux
+version: ${NEPLANG_VERSION}
+section: interpreters
+priority: optional
+maintainer: Charitra Shrestha <stharabi9862187405@gmail.com>
+description: |
+  Programming language with romanized Nepali keywords.
+  NepLang mixes romanized Nepali control-flow words (vana, yedi, natara,
+  jabasamma, ko_lagi, kaam, farkau) with English technical terms.
+homepage: https://github.com/charitraa/Nepa
+license: MIT
+
+contents:
+  - src: ${NEPLANG_BINARY}
+    dst: /usr/bin/neplang
+    file_info:
+      mode: 0755
+  - src: docs/neplang.1
+    dst: /usr/share/man/man1/neplang.1
+    file_info:
+      mode: 0644
+  - src: LICENSE
+    dst: /usr/share/doc/neplang/copyright
+    file_info:
+      mode: 0644
+  - src: examples/
+    dst: /usr/share/doc/neplang/examples/
+    type: tree

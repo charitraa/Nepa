@@ -1,0 +1,21 @@
+{
+    "version": "@VERSION@",
+    "description": "Programming language with romanized Nepali keywords",
+    "homepage": "https://github.com/charitraa/Nepa",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/charitraa/Nepa/releases/download/v@VERSION@/neplang-windows-x86_64.exe#/neplang.exe",
+            "hash": "@SHA_WINDOWS@"
+        }
+    },
+    "bin": "neplang.exe",
+    "checkver": "github",
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/charitraa/Nepa/releases/download/v$version/neplang-windows-x86_64.exe#/neplang.exe"
+            }
+        }
+    }
+}

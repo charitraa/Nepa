@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.6.0.schema.json
+PackageIdentifier: charitraa.NepLang
+PackageVersion: @VERSION@
+InstallerType: portable
+Commands:
+  - neplang
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/charitraa/Nepa/releases/download/v@VERSION@/neplang-windows-x86_64.exe
+    InstallerSha256: @SHA_WINDOWS_UPPER@
+ManifestType: installer
+ManifestVersion: 1.6.0

@@ -1,5 +1,7 @@
-# Builds prebuilt NepLang binaries and attaches them to a GitHub Release.
+# Builds prebuilt NepLang binaries and .deb/.rpm packages, attaches them to a GitHub
+# Release, then updates the Homebrew tap, the Scoop bucket and winget.
 # Triggered by pushing a version tag, e.g.:  git tag v0.5.0 && git push origin v0.5.0
+# One-time setup (repos and secrets) is described in packaging/README.md.
 name: release
 
 on:
@@ -70,10 +72,29 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
+
+      - name: Build .deb and .rpm packages
+        run: |
+          go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.41.1
+          export NEPLANG_VERSION="${GITHUB_REF_NAME#v}"
+          for arch in amd64 arm64; do
+            case "$arch" in
+              amd64) bin=neplang-linux-x86_64 ;;
+              arm64) bin=neplang-linux-arm64 ;;
+            esac
+            chmod +x "dist/$bin"
+            for fmt in deb rpm; do
+              NFPM_ARCH=$arch NEPLANG_BINARY="dist/$bin" \
+                "$(go env GOPATH)/bin/nfpm" package -f packaging/nfpm.yaml -p $fmt -t dist/
+            done
+          done
+          ls -l dist
 
       - name: Checksums
         run: cd dist && sha256sum * > SHA256SUMS
@@ -82,3 +103,63 @@ jobs:
         with:
           files: dist/*
           generate_release_notes: true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SHA256SUMS
+          path: dist/SHA256SUMS
+
+  # Pushes the updated formula to charitraa/homebrew-neplang and the manifest to
+  # charitraa/scoop-neplang. Skipped when the PACKAGING_TOKEN secret isn't set.
+  homebrew-scoop:
+    needs: release
+    runs-on: ubuntu-latest
+    env:
+      PACKAGING_TOKEN: ${{ secrets.PACKAGING_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: SHA256SUMS
+
+      - name: Render formula and manifest
+        run: packaging/render.sh "${GITHUB_REF_NAME#v}" SHA256SUMS rendered
+
+      - name: Push to tap and bucket
+        if: env.PACKAGING_TOKEN != ''
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git clone "https://x-access-token:${PACKAGING_TOKEN}@github.com/charitraa/homebrew-neplang.git" tap
+          mkdir -p tap/Formula
+          cp rendered/homebrew/neplang.rb tap/Formula/neplang.rb
+          git -C tap add Formula/neplang.rb
+          git -C tap commit -m "neplang $version" || echo "formula unchanged"
+          git -C tap push
+
+          git clone "https://x-access-token:${PACKAGING_TOKEN}@github.com/charitraa/scoop-neplang.git" bucket
+          mkdir -p bucket/bucket
+          cp rendered/scoop/neplang.json bucket/bucket/neplang.json
+          git -C bucket add bucket/neplang.json
+          git -C bucket commit -m "neplang $version" || echo "manifest unchanged"
+          git -C bucket push
+
+  # Opens a pull request on microsoft/winget-pkgs for the new version. The very first
+  # version must be submitted by hand (see packaging/README.md); skipped when the
+  # WINGET_TOKEN secret isn't set.
+  winget:
+    needs: release
+    runs-on: windows-latest
+    env:
+      WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
+    steps:
+      - uses: vedantmgoyal9/winget-releaser@v2
+        if: env.WINGET_TOKEN != ''
+        with:
+          identifier: charitraa.NepLang
+          installers-regex: 'windows-x86_64\.exe$'
+          release-tag: ${{ github.ref_name }}
+          token: ${{ secrets.WINGET_TOKEN }}

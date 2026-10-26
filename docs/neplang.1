@@ -1,0 +1,64 @@
+.TH NEPLANG 1 "October 2026" "NepLang" "User Commands"
+.SH NAME
+neplang \- run a NepLang program
+.SH SYNOPSIS
+.B neplang
+.I file.np
+.SH DESCRIPTION
+.B neplang
+runs a program written in NepLang, a small programming language whose keywords are
+romanized Nepali words mixed with English technical terms.
+Source files must end in
+.BR .np .
+.PP
+Each statement goes on its own line, and
+.B #
+starts a comment.
+.SH LANGUAGE
+.TP
+.B vana(expr)
+Print a value.
+.TP
+.B name = expr
+Create or update a variable.
+.TP
+.B yedi cond { } natara yedi cond { } natara { }
+If / else-if / else.
+.B natara
+must be on the same line as the closing
+.BR } .
+.TP
+.B jabasamma cond { }
+While loop.
+.TP
+.B ko_lagi i in a..b { }
+Count
+.I i
+from
+.I a
+up to, but not including,
+.IR b .
+.TP
+.B kaam name(a, b) { farkau expr }
+Define a function;
+.B farkau
+returns a value.
+.PP
+Values are integers. Comparisons
+.B "== != < <= > >="
+give 1 or 0, and any non-zero value is true.
+.SH EXAMPLE
+.nf
+kaam factorial(n) {
+    yedi n <= 1 {
+        farkau 1
+    }
+    farkau n * factorial(n \- 1)
+}
+vana(factorial(6))
+.fi
+.SH EXIT STATUS
+0 on success; 1 on a syntax or runtime error, which is printed with its file, line and
+column.
+.SH SEE ALSO
+https://github.com/charitraa/Nepa

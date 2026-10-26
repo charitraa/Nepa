@@ -1,0 +1,33 @@
+# Homebrew formula template. packaging/render.sh fills in @VERSION@ and the @SHA_*@
+# checksums and the release workflow pushes the result to charitraa/homebrew-neplang.
+class Neplang < Formula
+  desc "Programming language with romanized Nepali keywords"
+  homepage "https://github.com/charitraa/Nepa"
+  version "@VERSION@"
+  license "MIT"
+
+  on_macos do
+    url "https://github.com/charitraa/Nepa/releases/download/v@VERSION@/neplang-macos-universal"
+    sha256 "@SHA_MACOS@"
+  end
+
+  on_linux do
+    on_intel do
+      url "https://github.com/charitraa/Nepa/releases/download/v@VERSION@/neplang-linux-x86_64"
+      sha256 "@SHA_LINUX_X86_64@"
+    end
+    on_arm do
+      url "https://github.com/charitraa/Nepa/releases/download/v@VERSION@/neplang-linux-arm64"
+      sha256 "@SHA_LINUX_ARM64@"
+    end
+  end
+
+  def install
+    bin.install Dir["neplang-*"].first => "neplang"
+  end
+
+  test do
+    (testpath/"test.np").write("vana(2 + 3)\n")
+    assert_equal "5", shell_output("#{bin}/neplang #{testpath}/test.np").strip
+  end
+end
